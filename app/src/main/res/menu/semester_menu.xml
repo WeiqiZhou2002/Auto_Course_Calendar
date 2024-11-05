@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/menu_dropdown"
+        android:icon="@drawable/ic_semester_menu"
+        android:title="Auto/Manual"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/menu_auto"
+        android:title="Auto" />
+    <item
+        android:id="@+id/menu_manual"
+        android:title="Manual" />
+</menu>
