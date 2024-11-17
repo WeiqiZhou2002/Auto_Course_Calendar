@@ -20,13 +20,13 @@ data class Semester(
 
 class Converters {
     @TypeConverter
-    fun fromString(value: String): List<String> {
-        return value.split(",")
+    fun fromWeekdayList(list: List<Weekday>): String {
+        return list.joinToString(",") { it.name }
     }
 
     @TypeConverter
-    fun fromList(list: List<String>): String {
-        return list.joinToString(",")
+    fun toWeekdayList(data: String): List<Weekday> {
+        return data.split(",").map { Weekday.valueOf(it) }
     }
 }
 
