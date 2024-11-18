@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <!-- Semester Title -->
+    <TextView
+        android:id="@+id/semesterTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="2024Fall"
+        android:textSize="20sp"
+        android:layout_marginBottom="16dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Add Course Button -->
+    <ImageButton
+        android:id="@+id/addCourseButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@android:drawable/ic_input_add"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:contentDescription="Add Course" />
+
+    <!-- Course Details Section -->
+    <LinearLayout
+        android:id="@+id/courseDetailsSection"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="#F0F0F0"
+        android:padding="16dp"
+        app:layout_constraintTop_toBottomOf="@id/semesterTitle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintWidth_percent="1.0">
+
+        <EditText
+            android:id="@+id/courseName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Course Name"
+            android:backgroundTint="#CCCCCC" />
+
+        <EditText
+            android:id="@+id/location"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Location"
+            android:backgroundTint="#CCCCCC"
+            android:layout_marginTop="8dp" />
+
+        <EditText
+            android:id="@+id/instructor"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Instructor"
+            android:backgroundTint="#CCCCCC"
+            android:layout_marginTop="8dp" />
+    </LinearLayout>
+
+    <!-- Time Section -->
+    <LinearLayout
+        android:id="@+id/timeSection"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="#F0F0F0"
+        android:padding="16dp"
+        app:layout_constraintTop_toBottomOf="@id/courseDetailsSection"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintWidth_percent="1.0"
+        android:layout_marginTop="16dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="TIME"
+            android:textStyle="bold" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="8dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Start Time" />
+
+            <TextView
+                android:id="@+id/startTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="2:31 AM" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="8dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="End Time" />
+
+            <TextView
+                android:id="@+id/endTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="2:31 AM" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Days Section -->
+    <LinearLayout
+        android:id="@+id/daysSection"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_marginTop="8dp"
+        app:layout_constraintTop_toBottomOf="@id/timeSection"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintWidth_percent="1.0">
+
+        <ToggleButton
+            android:id="@+id/btnMon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textOn="Mon"
+            android:textOff="Mon"
+            android:checked="false" />
+
+        <ToggleButton
+            android:id="@+id/btnTue"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textOn="Tue"
+            android:textOff="Tue"
+            android:checked="false"
+            android:layout_marginStart="4dp" />
+
+        <ToggleButton
+            android:id="@+id/btnWed"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textOn="Wed"
+            android:textOff="Wed"
+            android:checked="false"
+            android:layout_marginStart="4dp" />
+
+        <ToggleButton
+            android:id="@+id/btnThu"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textOn="Thu"
+            android:textOff="Thu"
+            android:checked="false"
+            android:layout_marginStart="4dp" />
+
+        <ToggleButton
+            android:id="@+id/btnFri"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textOn="Fri"
+            android:textOff="Fri"
+            android:checked="false"
+            android:layout_marginStart="4dp" />
+
+        <ToggleButton
+            android:id="@+id/btnSat"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textOn="Sat"
+            android:textOff="Sat"
+            android:checked="false"
+            android:layout_marginStart="4dp" />
+
+        <ToggleButton
+            android:id="@+id/btnSun"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textOn="Sun"
+            android:textOff="Sun"
+            android:checked="false"
+            android:layout_marginStart="4dp" />
+    </LinearLayout>
+
+
+    <!-- Add to Semester Button -->
+    <Button
+        android:id="@+id/addToSemesterButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Add to Semester"
+        android:backgroundTint="#4CAF50"
+        android:textColor="#FFFFFF"
+        android:layout_marginTop="16dp"
+        app:layout_constraintTop_toBottomOf="@id/daysSection"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintWidth_percent="1.0" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
