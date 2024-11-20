@@ -77,23 +77,21 @@ interface CourseDao {
 abstract class AppDatabase : RoomDatabase() {
     abstract fun semesterDao(): SemesterDao
     abstract fun courseDao(): CourseDao
-}
+    companion object {
+        @Volatile
+        private var INSTANCE: AppDatabase? = null
 
-// Database Provider
-object DatabaseProvider {
-    private var INSTANCE: AppDatabase? = null
-
-    fun getDatabase(context: Context): AppDatabase {
-        if (INSTANCE == null) {
-            synchronized(AppDatabase::class) {
-                INSTANCE = Room.databaseBuilder(
+        fun getDatabase(context: Context): AppDatabase {
+            return INSTANCE ?: synchronized(this) {
+                val instance = Room.databaseBuilder(
                     context.applicationContext,
                     AppDatabase::class.java,
                     "app_database"
                 ).build()
+                INSTANCE = instance
+                instance
             }
         }
-        return INSTANCE!!
     }
 }
 
