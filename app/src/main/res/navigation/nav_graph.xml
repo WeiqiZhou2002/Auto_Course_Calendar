@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/semesterListFragment">
+
+    <!-- Semester List Fragment -->
+    <fragment
+        android:id="@+id/semesterListFragment"
+        android:name="com.cs407.autocoursecalendar.SemesterListFragment"
+        android:label="Semester List">
+        <action
+            android:id="@+id/action_semesterList_to_semesterDetail"
+            app:destination="@id/semesterDetailFragment" />
+        <action
+            android:id="@+id/action_semesterList_to_courseList"
+            app:destination="@id/courseListFragment" />
+    </fragment>
+
+    <!-- Semester Detail Fragment -->
+    <fragment
+        android:id="@+id/semesterDetailFragment"
+        android:name="com.cs407.autocoursecalendar.SemesterDetailFragment"
+        android:label="Semester Details" />
+    <action
+        android:id="@+id/action_semesterDetail_to_courseList"
+        app:destination="@id/courseListFragment" />
+
+    <fragment
+        android:id="@+id/courseListFragment"
+        android:name="com.cs407.autocoursecalendar.CourseListFragment"
+        android:label="Course List">
+        <action
+            android:id="@+id/action_courseList_to_courseDetail"
+            app:destination="@id/courseDetailFragment" />
+    </fragment>
+
+    <!-- Course Detail Fragment -->
+    <fragment
+        android:id="@+id/courseDetailFragment"
+        android:name="com.cs407.autocoursecalendar.CourseDetailFragment"
+        android:label="Course Detail" />
+</navigation>

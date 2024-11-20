@@ -15,9 +15,6 @@ data class Semester(
     val endDate: String
 )
 
-
-
-
 class Converters {
     @TypeConverter
     fun fromWeekdayList(list: List<Weekday>): String {
