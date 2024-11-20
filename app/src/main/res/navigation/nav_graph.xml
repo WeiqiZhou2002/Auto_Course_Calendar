@@ -21,10 +21,11 @@
     <fragment
         android:id="@+id/semesterDetailFragment"
         android:name="com.cs407.autocoursecalendar.SemesterDetailFragment"
-        android:label="Semester Details" />
-    <action
-        android:id="@+id/action_semesterDetail_to_courseList"
-        app:destination="@id/courseListFragment" />
+        android:label="Semester Details" >
+        <action
+            android:id="@+id/action_semesterDetailFragment_to_courseListFragment"
+            app:destination="@id/courseListFragment" />
+    </fragment>
 
     <fragment
         android:id="@+id/courseListFragment"
