@@ -85,7 +85,7 @@ class CourseListFragment : Fragment() {
         //Remove from List
         courses.remove(course)
 
-        //Notify Adapter
+        //qNotify Adapter
         adapter.notifyDataSetChanged()
     }
     private fun loadCourses() {

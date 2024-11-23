@@ -69,6 +69,9 @@ interface CourseDao {
 
     @Query("SELECT * FROM course WHERE semesterId = :semesterId")
     suspend fun getCoursesBySemester(semesterId: Long): List<Course>
+
+    @Delete
+    suspend fun delete(course: Course)
 }
 
 // Database
