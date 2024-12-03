@@ -37,13 +37,13 @@ class SemesterDetailFragment : Fragment() {
         startDateInput = view.findViewById(R.id.startDateInput)
         endDateInput = view.findViewById(R.id.endDateInput)
 
-        // set year/season buttons to select
+        // Setup year/season buttons to select
         setupYearButton()
         setupSeasonButton()
 
         // Save logic
         saveButton.setOnClickListener {
-            // semester information
+            // Semester information
             val year = buttonYear.text.toString().toIntOrNull()
             val season = buttonSeason.text.toString()
             val startDate = startDateInput.text.toString()
@@ -57,19 +57,19 @@ class SemesterDetailFragment : Fragment() {
                     endDate = endDate
                 )
 
+                // Save to database and navigate
                 lifecycleScope.launch {
                     val db = AppDatabase.getDatabase(requireContext())
-                    db.semesterDao().insertSemester(semester)
+                    val semesterId = db.semesterDao().insertSemester(semester) // Get generated ID
                     Toast.makeText(requireContext(), "Semester added!", Toast.LENGTH_SHORT).show()
-                    requireActivity().onBackPressed()
+
+                    // Navigate to CourseListFragment with the semesterId
+                    val action = SemesterDetailFragmentDirections.actionSemesterDetailFragmentToCourseListFragment(semesterId = semesterId)
+                    findNavController().navigate(action)
                 }
             } else {
                 Toast.makeText(requireContext(), "Please fill all required fields", Toast.LENGTH_SHORT).show()
             }
-
-            // Save semester logic here
-            val action = SemesterDetailFragmentDirections.actionSemesterDetailFragmentToCourseListFragment()
-            findNavController().navigate(action)
         }
 
         return view
