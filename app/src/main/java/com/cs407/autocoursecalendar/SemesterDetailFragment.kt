@@ -68,7 +68,7 @@ class SemesterDetailFragment : Fragment() {
             }
 
             // Save semester logic here
-            val action = SemesterDetailFragmentDirections.actionSemesterDetailToCourseList()
+            val action = SemesterDetailFragmentDirections.actionSemesterDetailFragmentToCourseListFragment()
             findNavController().navigate(action)
         }
 
