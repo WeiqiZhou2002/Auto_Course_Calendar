@@ -1,12 +1,16 @@
 package com.cs407.autocoursecalendar
 
+import android.content.ContentValues
 import android.os.Bundle
+import android.provider.CalendarContract
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -19,6 +23,7 @@ import com.cs407.autocoursecalendar.data.Course
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.launch
+import java.util.TimeZone
 
 class CourseListFragment : Fragment() {
 
@@ -82,6 +87,66 @@ class CourseListFragment : Fragment() {
         // Inflate the menu from the resource file
         inflater.inflate(R.menu.course_list_menu, menu)
         super.onCreateOptionsMenu(menu, inflater)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.action_add_to_calendar -> {
+                addCoursesToCalendar()
+                return true
+            }
+        }
+        return super.onOptionsItemSelected(item)
+    }
+
+    private fun addCoursesToCalendar() {
+        lifecycleScope.launch {
+            try {
+                val semesterId = arguments?.getLong("semesterId") ?: return@launch
+                val courses = viewModel.getCoursesBySemester(semesterId)
+
+                if (courses.isEmpty()) {
+                    Toast.makeText(requireContext(), "No courses to add to calendar.", Toast.LENGTH_SHORT).show()
+                    return@launch
+                }
+
+                val contentResolver = requireContext().contentResolver
+
+                for (course in courses) {
+                    for (day in course.frequency) {
+                        val eventValues = ContentValues().apply {
+                            put(CalendarContract.Events.CALENDAR_ID, 1) // Replace with user's calendar ID
+                            put(CalendarContract.Events.TITLE, course.courseName)
+                            put(CalendarContract.Events.DESCRIPTION, "Instructor: ${course.instructor}")
+                            put(CalendarContract.Events.EVENT_LOCATION, course.location)
+                            put(CalendarContract.Events.EVENT_TIMEZONE, TimeZone.getDefault().id)
+
+                            // Compute start and end times based on the day and time
+                            val startMillis = computeEventTime(course.startTime, day, semesterId)
+                            val endMillis = computeEventTime(course.endTime, day, semesterId)
+
+                            put(CalendarContract.Events.DTSTART, startMillis)
+                            put(CalendarContract.Events.DTEND, endMillis)
+                            put(CalendarContract.Events.RRULE, "FREQ=WEEKLY") // Repeats weekly
+                        }
+
+                        val uri = contentResolver.insert(CalendarContract.Events.CONTENT_URI, eventValues)
+                        if (uri != null) {
+                            Toast.makeText(requireContext(), "Course ${course.courseName} added to calendar.", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                Toast.makeText(requireContext(), "Failed to add courses to calendar: ${e.message}", Toast.LENGTH_LONG).show()
+            }
+        }
+    }
+
+    private fun computeEventTime(time: String, day: Weekday, semesterId: Long): Long {
+        // Logic to calculate the exact start or end time in milliseconds
+        // Combine the date for the semester with the time string (e.g., "10:00")
+        // Convert to milliseconds
+        return 0L // Replace with actual computation logic
     }
 
 
