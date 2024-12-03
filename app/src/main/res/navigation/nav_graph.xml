@@ -31,6 +31,9 @@
         android:id="@+id/courseListFragment"
         android:name="com.cs407.autocoursecalendar.CourseListFragment"
         android:label="Course List">
+        <argument
+            android:name="semesterId"
+            app:argType="long" />
         <action
             android:id="@+id/action_courseList_to_courseDetail"
             app:destination="@id/courseDetailFragment" />
@@ -40,5 +43,9 @@
     <fragment
         android:id="@+id/courseDetailFragment"
         android:name="com.cs407.autocoursecalendar.CourseDetailFragment"
-        android:label="Course Detail" />
+        android:label="Course Detail" >
+        <argument
+            android:name="semesterId"
+            app:argType="long" />
+    </fragment>
 </navigation>
