@@ -61,7 +61,6 @@ class SemesterDetailFragment : Fragment() {
                     val db = AppDatabase.getDatabase(requireContext())
                     db.semesterDao().insertSemester(semester)
                     Toast.makeText(requireContext(), "Semester added!", Toast.LENGTH_SHORT).show()
-                    requireActivity().onBackPressed()
                 }
             } else {
                 Toast.makeText(requireContext(), "Please fill all required fields", Toast.LENGTH_SHORT).show()
