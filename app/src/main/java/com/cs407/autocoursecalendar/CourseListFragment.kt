@@ -67,7 +67,8 @@ class CourseListFragment : Fragment() {
 
         // Floating Action Button to create a new course
         fab.setOnClickListener {
-            val action = CourseListFragmentDirections.actionCourseListToCourseDetail()
+            val semesterId = arguments?.getLong("semesterId") ?: 0L
+            val action = CourseListFragmentDirections.actionCourseListToCourseDetail(semesterId=semesterId)
             findNavController().navigate(action)
         }
 

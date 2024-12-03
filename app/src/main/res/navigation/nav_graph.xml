@@ -43,5 +43,9 @@
     <fragment
         android:id="@+id/courseDetailFragment"
         android:name="com.cs407.autocoursecalendar.CourseDetailFragment"
-        android:label="Course Detail" />
+        android:label="Course Detail" >
+        <argument
+            android:name="semesterId"
+            app:argType="long" />
+    </fragment>
 </navigation>
