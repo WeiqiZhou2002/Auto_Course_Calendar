@@ -70,6 +70,7 @@ class SemesterDetailFragment : Fragment() {
             } else {
                 Toast.makeText(requireContext(), "Please fill all required fields", Toast.LENGTH_SHORT).show()
             }
+
         }
 
         return view
