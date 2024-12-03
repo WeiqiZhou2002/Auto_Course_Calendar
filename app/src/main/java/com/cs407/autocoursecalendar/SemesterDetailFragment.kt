@@ -67,9 +67,8 @@ class SemesterDetailFragment : Fragment() {
                 Toast.makeText(requireContext(), "Please fill all required fields", Toast.LENGTH_SHORT).show()
             }
 
-            // Save semester logic here
-            val action = SemesterDetailFragmentDirections.actionSemesterDetailFragmentToCourseListFragment()
-            findNavController().navigate(action)
+            // navigate to course list
+            findNavController().navigate(R.id.action_semesterDetailFragment_to_courseListFragment)
         }
 
         return view
