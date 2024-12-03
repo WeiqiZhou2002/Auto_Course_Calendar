@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -12,7 +13,9 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.cs407.autocoursecalendar.data.AppDatabase
+import com.cs407.autocoursecalendar.data.Course
 import com.cs407.autocoursecalendar.data.Semester
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -36,14 +39,14 @@ class SemesterListFragment : Fragment() {
         fab = view.findViewById(R.id.fab)
 
         // Set up RecyclerView
+
         adapter = SemesterAdapter(semesters, onItemClick = { semester ->
             // Navigate to Course List
             val action = SemesterListFragmentDirections.actionSemesterListToCourseList(semesterId = semester.id)
             findNavController().navigate(action)
         }, onItemLongClick = { semester ->
-            // Navigate to Semester Detail
-            val action = SemesterListFragmentDirections.actionSemesterListToSemesterDetail()
-            findNavController().navigate(action)
+            // Show delete bottom sheet
+            showDeleteBottomSheet(semester)
         })
         semesterRecyclerView.layoutManager = LinearLayoutManager(requireContext())
         semesterRecyclerView.adapter = adapter
@@ -78,12 +81,43 @@ class SemesterListFragment : Fragment() {
         }
 
         return view
+
+
     }
+    private fun showDeleteBottomSheet(semester: Semester) {
+        val bottomSheetDialog = BottomSheetDialog(requireContext())
+        val bottomSheetView = layoutInflater.inflate(R.layout.bottom_sheet_delete, null)
+        bottomSheetDialog.setContentView(bottomSheetView)
+
+        val deleteButton = bottomSheetView.findViewById<Button>(R.id.deleteButton)
+        val cancelButton = bottomSheetView.findViewById<Button>(R.id.cancelButton)
+
+        deleteButton.setOnClickListener {
+            lifecycleScope.launch(Dispatchers.IO) {
+                viewModel.deleteSemester(semester)
+                lifecycleScope.launch(Dispatchers.Main) {
+                    semesters.remove(semester)
+                    adapter.notifyDataSetChanged()
+                }
+            }
+            bottomSheetDialog.dismiss()
+        }
+
+        cancelButton.setOnClickListener {
+            bottomSheetDialog.dismiss()
+        }
+
+        bottomSheetDialog.show()
+    }
+
 
     // ViewModel to handle database interactions
     class SemesterViewModel(private val database: AppDatabase) : ViewModel() {
         suspend fun getSemesters(): List<Semester> {
             return database.semesterDao().getAllSemesters()
+        }
+        suspend fun deleteSemester(semester: Semester) {
+            database.semesterDao().delete(semester)
         }
     }
 }

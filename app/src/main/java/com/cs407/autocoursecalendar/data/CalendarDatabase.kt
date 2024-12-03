@@ -51,6 +51,8 @@ data class Course(
     val frequency: List<Weekday> // E.g., ["Monday", "Wednesday", "Friday"]
 )
 
+
+
 // DAO: SemesterDao
 @Dao
 interface SemesterDao {
@@ -59,6 +61,11 @@ interface SemesterDao {
 
     @Query("SELECT * FROM semester")
     suspend fun getAllSemesters(): List<Semester>
+
+    @Delete
+    suspend fun delete(semester: Semester)
+
+
 }
 
 // DAO: CourseDao
