@@ -55,7 +55,6 @@ dependencies {
     implementation(libs.androidx.paging.runtime.ktx)
     implementation(libs.androidx.junit.ktx)
     implementation(libs.androidx.fragment.testing)
-    annotationProcessor(libs.androidx.room.compiler)
     // To use Kotlin Symbol Processing (KSP)
     ksp(libs.androidx.room.compiler)
 
@@ -63,10 +62,6 @@ dependencies {
     implementation(libs.androidx.navigation.ui.ktx)
 
     implementation(libs.androidx.room.ktx)
-//    implementation ("androidx.navigation:navigation-fragment-ktx:2.7.4")
-//    implementation ("androidx.navigation:navigation-ui-ktx:2.7.4")
-//    implementation("androidx.room:room-runtime:2.5.0")
-//    kapt("androidx.room:room-compiler:2.5.0")
 
 
 }
