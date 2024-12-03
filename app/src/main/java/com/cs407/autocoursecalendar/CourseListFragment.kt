@@ -2,6 +2,8 @@ package com.cs407.autocoursecalendar
 
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
@@ -30,6 +32,7 @@ class CourseListFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        setHasOptionsMenu(true)
         val view = inflater.inflate(R.layout.fragment_course_list, container, false)
 
         // Initialize views
@@ -74,6 +77,13 @@ class CourseListFragment : Fragment() {
 
         return view
     }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        // Inflate the menu from the resource file
+        inflater.inflate(R.menu.course_list_menu, menu)
+        super.onCreateOptionsMenu(menu, inflater)
+    }
+
 
     private fun showDeleteBottomSheet(course: Course) {
         val bottomSheetDialog = BottomSheetDialog(requireContext())
