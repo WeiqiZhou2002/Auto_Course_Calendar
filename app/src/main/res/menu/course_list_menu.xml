@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <!-- Auto Option -->
+    <item
+        android:id="@+id/action_auto"
+        android:title="Auto"
+        android:icon="@android:drawable/ic_menu_compass"
+        app:showAsAction="never" />
+
+    <!-- Manual Option -->
+    <item
+        android:id="@+id/action_manual"
+        android:title="Manual"
+        android:icon="@android:drawable/ic_menu_edit"
+        app:showAsAction="never" />
+
+    <!-- Add to Calendar Option -->
+    <item
+        android:id="@+id/action_add_to_calendar"
+        android:title="Add to Calendar"
+        android:icon="@android:drawable/ic_menu_agenda"
+        app:showAsAction="never" />
+</menu>
