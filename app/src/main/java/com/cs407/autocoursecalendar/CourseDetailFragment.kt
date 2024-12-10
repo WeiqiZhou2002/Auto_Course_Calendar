@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.*
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import com.cs407.autocoursecalendar.data.AppDatabase
 import com.cs407.autocoursecalendar.data.Course
 import kotlinx.coroutines.launch
@@ -149,6 +150,8 @@ class CourseDetailFragment : Fragment() {
 
                 db.courseDao().insertCourse(course)
                 Toast.makeText(requireContext(), "Course added successfully!", Toast.LENGTH_SHORT).show()
+                val action = CourseDetailFragmentDirections.actionCourseDetailToCourseList(semesterId=semesterId);
+                findNavController().navigate(action)
                 clearInputs()
             } catch (e: Exception) {
                 Toast.makeText(requireContext(), "Error saving course: ${e.message}", Toast.LENGTH_SHORT).show()

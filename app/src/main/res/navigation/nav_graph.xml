@@ -47,5 +47,8 @@
         <argument
             android:name="semesterId"
             app:argType="long" />
+        <action
+            android:id="@+id/action_courseDetail_to_courseList"
+            app:destination="@id/courseListFragment" />
     </fragment>
 </navigation>
