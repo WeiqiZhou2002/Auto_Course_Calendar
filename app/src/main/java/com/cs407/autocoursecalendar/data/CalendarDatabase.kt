@@ -79,6 +79,10 @@ interface CourseDao {
 
     @Delete
     suspend fun delete(course: Course)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertCourses(courses: List<Course>)
+
 }
 
 // Database

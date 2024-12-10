@@ -35,7 +35,7 @@ class CourseAdapter(
             course: Course,
             onItemLongClick: (Course) -> Unit
         ) {
-            courseTitle.text = "${course.courseName} ${course.courseCode}"
+            courseTitle.text = " ${course.courseCode} ${course.courseName}"
             timeText.text = "${course.startTime} - ${course.endTime}"
             locationText.text="${course.location}"
             itemView.setOnLongClickListener {

@@ -95,6 +95,13 @@ class CourseListFragment : Fragment() {
                 addCoursesToCalendar()
                 return true
             }
+            R.id.action_auto -> {
+                // Navigate to TextProcessorFragment
+                val semesterId = arguments?.getLong("semesterId") ?: 0L
+                val action = CourseListFragmentDirections.actionCourseListToAutoCourse(semesterId)
+                findNavController().navigate(action)
+                return true
+            }
         }
         return super.onOptionsItemSelected(item)
     }

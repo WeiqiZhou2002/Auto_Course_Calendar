@@ -37,6 +37,9 @@
         <action
             android:id="@+id/action_courseList_to_courseDetail"
             app:destination="@id/courseDetailFragment" />
+        <action
+            android:id="@+id/action_courseList_to_autoCourse"
+            app:destination="@id/textProcessorFragment" />
     </fragment>
 
     <!-- Course Detail Fragment -->
@@ -49,6 +52,19 @@
             app:argType="long" />
         <action
             android:id="@+id/action_courseDetail_to_courseList"
+            app:destination="@id/courseListFragment" />
+    </fragment>
+
+    <!-- Text ProcessorFragment -->
+    <fragment
+        android:id="@+id/textProcessorFragment"
+        android:name="com.cs407.autocoursecalendar.TextProcessorFragment"
+        android:label="Text Processor" >
+        <argument
+            android:name="semesterId"
+            app:argType="long" />
+        <action
+            android:id="@+id/action_autoCourse_to_courseList"
             app:destination="@id/courseListFragment" />
     </fragment>
 </navigation>
