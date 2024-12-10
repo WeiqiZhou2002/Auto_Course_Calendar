@@ -1,17 +1,14 @@
 package com.cs407.autocoursecalendar
 
+import android.Manifest
 import android.content.ContentValues
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.provider.CalendarContract
-import android.view.LayoutInflater
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.MenuItem
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.Button
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -24,7 +21,7 @@ import com.cs407.autocoursecalendar.data.Course
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.launch
-import java.util.TimeZone
+import java.util.*
 
 class CourseListFragment : Fragment() {
 
@@ -78,7 +75,7 @@ class CourseListFragment : Fragment() {
         // Floating Action Button to create a new course
         fab.setOnClickListener {
             val semesterId = arguments?.getLong("semesterId") ?: 0L
-            val action = CourseListFragmentDirections.actionCourseListToCourseDetail(semesterId=semesterId)
+            val action = CourseListFragmentDirections.actionCourseListToCourseDetail(semesterId = semesterId)
             findNavController().navigate(action)
         }
 
@@ -86,17 +83,25 @@ class CourseListFragment : Fragment() {
     }
 
     private fun requestCalendarPermissionIfNeeded() {
-        val permission = android.Manifest.permission.WRITE_CALENDAR
-        if (requireContext().checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(arrayOf(permission), CALENDAR_PERMISSION_REQUEST_CODE)
+        val permissions = arrayOf(
+            Manifest.permission.READ_CALENDAR,
+            Manifest.permission.WRITE_CALENDAR
+        )
+        val missingPermissions = permissions.filter {
+            requireContext().checkSelfPermission(it) != PackageManager.PERMISSION_GRANTED
+        }
+
+        if (missingPermissions.isNotEmpty()) {
+            requestPermissions(missingPermissions.toTypedArray(), CALENDAR_PERMISSION_REQUEST_CODE)
         } else {
-            // Permission already granted
-            addCoursesToCalendar()
+            // Permissions already granted
+            showCalendarSelectionDialog { calendarId ->
+                addCoursesToCalendar(calendarId)
+            }
         }
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        // Inflate the menu from the resource file
         inflater.inflate(R.menu.course_list_menu, menu)
         super.onCreateOptionsMenu(menu, inflater)
     }
@@ -108,7 +113,6 @@ class CourseListFragment : Fragment() {
                 return true
             }
             R.id.action_auto -> {
-                // Navigate to TextProcessorFragment
                 val semesterId = arguments?.getLong("semesterId") ?: 0L
                 val action = CourseListFragmentDirections.actionCourseListToAutoCourse(semesterId)
                 findNavController().navigate(action)
@@ -125,26 +129,34 @@ class CourseListFragment : Fragment() {
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == CALENDAR_PERMISSION_REQUEST_CODE) {
-            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // Permission granted
-                addCoursesToCalendar()
+            if (grantResults.isNotEmpty() && grantResults.all { it == PackageManager.PERMISSION_GRANTED }) {
+                // Permissions granted
+                showCalendarSelectionDialog { calendarId ->
+                    addCoursesToCalendar(calendarId)
+                }
             } else {
-                // Permission denied
+                // Permissions denied
                 Toast.makeText(
                     requireContext(),
-                    "Calendar write permission denied. Unable to add courses to calendar.",
+                    "Calendar permissions are required to add courses to the calendar.",
                     Toast.LENGTH_LONG
                 ).show()
             }
         }
     }
+    private fun formatDate(millis: Long): String {
+        val dateFormat = java.text.SimpleDateFormat("yyyyMMdd'T'HHmmss'Z'", Locale.getDefault())
+        dateFormat.timeZone = TimeZone.getTimeZone("UTC")
+        return dateFormat.format(Date(millis))
+    }
 
-
-    private fun addCoursesToCalendar() {
+    private fun addCoursesToCalendar(calendarId: Long) {
         lifecycleScope.launch {
             try {
                 val semesterId = arguments?.getLong("semesterId") ?: return@launch
                 val courses = viewModel.getCoursesBySemester(semesterId)
+                val semesterStartMillis = System.currentTimeMillis() // Replace with actual semester start date
+                val semesterEndMillis = semesterStartMillis + 4 * 30 * 24 * 60 * 60 * 1000L // Example: 4 months
 
                 if (courses.isEmpty()) {
                     Toast.makeText(requireContext(), "No courses to add to calendar.", Toast.LENGTH_SHORT).show()
@@ -155,25 +167,29 @@ class CourseListFragment : Fragment() {
 
                 for (course in courses) {
                     for (day in course.frequency) {
+                        val startMillis = computeEventTime(course.startTime, day, semesterStartMillis)
+                        val endMillis = computeEventTime(course.endTime, day, semesterStartMillis)
+
                         val eventValues = ContentValues().apply {
-                            put(CalendarContract.Events.CALENDAR_ID, 1) // Replace with user's calendar ID
+                            put(CalendarContract.Events.CALENDAR_ID, calendarId)
                             put(CalendarContract.Events.TITLE, course.courseName)
                             put(CalendarContract.Events.DESCRIPTION, "Instructor: ${course.instructor}")
                             put(CalendarContract.Events.EVENT_LOCATION, course.location)
                             put(CalendarContract.Events.EVENT_TIMEZONE, TimeZone.getDefault().id)
-
-                            // Compute start and end times based on the day and time
-                            val startMillis = computeEventTime(course.startTime, day, semesterId)
-                            val endMillis = computeEventTime(course.endTime, day, semesterId)
-
                             put(CalendarContract.Events.DTSTART, startMillis)
                             put(CalendarContract.Events.DTEND, endMillis)
-                            put(CalendarContract.Events.RRULE, "FREQ=WEEKLY") // Repeats weekly
+
+                            // Recurrence rule for weekly events during the semester
+                            put(CalendarContract.Events.RRULE, "FREQ=WEEKLY;UNTIL=${formatDate(semesterEndMillis)}")
                         }
 
                         val uri = contentResolver.insert(CalendarContract.Events.CONTENT_URI, eventValues)
                         if (uri != null) {
-                            Toast.makeText(requireContext(), "Course ${course.courseName} added to calendar.", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(
+                                requireContext(),
+                                "Course ${course.courseName} added to calendar.",
+                                Toast.LENGTH_SHORT
+                            ).show()
                         }
                     }
                 }
@@ -183,13 +199,69 @@ class CourseListFragment : Fragment() {
         }
     }
 
-    private fun computeEventTime(time: String, day: Weekday, semesterId: Long): Long {
-        // Logic to calculate the exact start or end time in milliseconds
-        // Combine the date for the semester with the time string (e.g., "10:00")
-        // Convert to milliseconds
-        return 0L // Replace with actual computation logic
+
+    private fun computeEventTime(time: String, day: Weekday, semesterStartMillis: Long): Long {
+        try {
+            // Parse the time in "h:mm a" format (e.g., "2:30 PM")
+            val dateFormat = java.text.SimpleDateFormat("h:mm a", Locale.getDefault())
+            val timeDate = dateFormat.parse(time) ?: throw IllegalArgumentException("Invalid time format: $time")
+
+            // Use the semester's start date to compute the event time
+            val calendar = Calendar.getInstance()
+            calendar.timeInMillis = semesterStartMillis
+
+            // Set the day of the week and time
+            calendar.set(Calendar.DAY_OF_WEEK, day.ordinal + 1)
+            val timeCalendar = Calendar.getInstance()
+            timeCalendar.time = timeDate
+            calendar.set(Calendar.HOUR_OF_DAY, timeCalendar.get(Calendar.HOUR_OF_DAY))
+            calendar.set(Calendar.MINUTE, timeCalendar.get(Calendar.MINUTE))
+
+            return calendar.timeInMillis
+        } catch (e: Exception) {
+            e.printStackTrace()
+            throw IllegalArgumentException("Error computing event time: $time")
+        }
     }
 
+
+
+    private fun showCalendarSelectionDialog(onCalendarSelected: (Long) -> Unit) {
+        val calendarIds = mutableListOf<Pair<Long, String>>()
+        val projection = arrayOf(
+            CalendarContract.Calendars._ID,
+            CalendarContract.Calendars.CALENDAR_DISPLAY_NAME
+        )
+
+        val cursor = requireContext().contentResolver.query(
+            CalendarContract.Calendars.CONTENT_URI,
+            projection,
+            null,
+            null,
+            null
+        )
+
+        cursor?.use {
+            while (it.moveToNext()) {
+                val id = it.getLong(it.getColumnIndexOrThrow(CalendarContract.Calendars._ID))
+                val name = it.getString(it.getColumnIndexOrThrow(CalendarContract.Calendars.CALENDAR_DISPLAY_NAME))
+                calendarIds.add(id to name)
+            }
+        }
+
+        if (calendarIds.isEmpty()) {
+            Toast.makeText(requireContext(), "No calendars found on this device.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val items = calendarIds.map { it.second }.toTypedArray()
+        AlertDialog.Builder(requireContext())
+            .setTitle("Select Calendar")
+            .setItems(items) { _, which ->
+                onCalendarSelected(calendarIds[which].first)
+            }
+            .show()
+    }
 
     private fun showDeleteBottomSheet(course: Course) {
         val bottomSheetDialog = BottomSheetDialog(requireContext())
