@@ -30,13 +30,14 @@ class CourseAdapter(
     class CourseViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val courseTitle: TextView = itemView.findViewById(R.id.titleTextView)
         private val timeText: TextView = itemView.findViewById(R.id.timeTextView)
+        private val locationText: TextView = itemView.findViewById(R.id.locationTextView)
         fun bind(
             course: Course,
             onItemLongClick: (Course) -> Unit
         ) {
-            courseTitle.text = "${course.courseName} ${course.courseCode}"
+            courseTitle.text = " ${course.courseCode} ${course.courseName}"
             timeText.text = "${course.startTime} - ${course.endTime}"
-
+            locationText.text="${course.location}"
             itemView.setOnLongClickListener {
                 onItemLongClick(course)
                 true
