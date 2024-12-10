@@ -1,6 +1,7 @@
 package com.cs407.autocoursecalendar
 
 import android.content.ContentValues
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.provider.CalendarContract
 import android.view.LayoutInflater
@@ -32,6 +33,7 @@ class CourseListFragment : Fragment() {
     private val courses = mutableListOf<Course>()
     private lateinit var adapter: CourseAdapter
     private lateinit var viewModel: CourseViewModel
+    private val CALENDAR_PERMISSION_REQUEST_CODE = 100
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -83,6 +85,16 @@ class CourseListFragment : Fragment() {
         return view
     }
 
+    private fun requestCalendarPermissionIfNeeded() {
+        val permission = android.Manifest.permission.WRITE_CALENDAR
+        if (requireContext().checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(arrayOf(permission), CALENDAR_PERMISSION_REQUEST_CODE)
+        } else {
+            // Permission already granted
+            addCoursesToCalendar()
+        }
+    }
+
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         // Inflate the menu from the resource file
         inflater.inflate(R.menu.course_list_menu, menu)
@@ -92,7 +104,7 @@ class CourseListFragment : Fragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.action_add_to_calendar -> {
-                addCoursesToCalendar()
+                requestCalendarPermissionIfNeeded()
                 return true
             }
             R.id.action_auto -> {
@@ -105,6 +117,28 @@ class CourseListFragment : Fragment() {
         }
         return super.onOptionsItemSelected(item)
     }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == CALENDAR_PERMISSION_REQUEST_CODE) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Permission granted
+                addCoursesToCalendar()
+            } else {
+                // Permission denied
+                Toast.makeText(
+                    requireContext(),
+                    "Calendar write permission denied. Unable to add courses to calendar.",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        }
+    }
+
 
     private fun addCoursesToCalendar() {
         lifecycleScope.launch {
