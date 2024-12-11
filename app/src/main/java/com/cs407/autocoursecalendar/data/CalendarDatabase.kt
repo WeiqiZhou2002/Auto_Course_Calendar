@@ -11,7 +11,7 @@ data class Semester(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val year: Int,
     val season: String, // e.g., "Spring", "Fall"
-    val startDate: String, // ISO 8601 date format (e.g., "2024-09-01")
+    val startDate: String, // MM/dd/yyyy
     val endDate: String
 )
 
@@ -64,6 +64,12 @@ interface SemesterDao {
 
     @Delete
     suspend fun delete(semester: Semester)
+
+    @Query("SELECT startDate FROM semester WHERE id = :semesterId")
+    suspend fun getSemesterStartDate(semesterId: Long): String
+
+    @Query("SELECT endDate FROM semester WHERE id = :semesterId")
+    suspend fun getSemesterEndDate(semesterId: Long): String
 
 
 }
