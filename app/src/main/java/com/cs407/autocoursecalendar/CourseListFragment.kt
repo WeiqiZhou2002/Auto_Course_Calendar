@@ -21,6 +21,7 @@ import com.cs407.autocoursecalendar.data.Course
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
 import java.util.*
 
 class CourseListFragment : Fragment() {
@@ -74,12 +75,50 @@ class CourseListFragment : Fragment() {
 
         // Floating Action Button to create a new course
         fab.setOnClickListener {
+            showAddCourseBottomSheet()
+        }
+
+
+        return view
+    }
+
+    private fun showAddCourseBottomSheet() {
+        // Create Bottom Sheet Dialog
+        val bottomSheetDialog = BottomSheetDialog(requireContext())
+        val bottomSheetView = layoutInflater.inflate(R.layout.bottom_add_courses, null)
+        bottomSheetDialog.setContentView(bottomSheetView)
+
+        // Get the buttons
+        val manualAddButton = bottomSheetView.findViewById<Button>(R.id.manual)
+        val autoAddButton = bottomSheetView.findViewById<Button>(R.id.auto)
+        val addToCalendarButton = bottomSheetView.findViewById<Button>(R.id.addToCalendar)
+
+        // Handle the Manual Add button click
+        manualAddButton.setOnClickListener {
             val semesterId = arguments?.getLong("semesterId") ?: 0L
             val action = CourseListFragmentDirections.actionCourseListToCourseDetail(semesterId = semesterId)
             findNavController().navigate(action)
+            bottomSheetDialog.dismiss()
         }
 
-        return view
+        // Handle the Auto Add button click
+        autoAddButton.setOnClickListener {
+            val semesterId = arguments?.getLong("semesterId") ?: 0L
+            val action = CourseListFragmentDirections.actionCourseListToAutoCourse(semesterId)
+            findNavController().navigate(action)
+            bottomSheetDialog.dismiss()
+        }
+
+
+
+        // Handle the Cancel button click
+        addToCalendarButton.setOnClickListener {
+            requestCalendarPermissionIfNeeded()
+            bottomSheetDialog.dismiss()
+        }
+
+        // Show the Bottom Sheet Dialog
+        bottomSheetDialog.show()
     }
 
     private fun requestCalendarPermissionIfNeeded() {
@@ -155,8 +194,19 @@ class CourseListFragment : Fragment() {
             try {
                 val semesterId = arguments?.getLong("semesterId") ?: return@launch
                 val courses = viewModel.getCoursesBySemester(semesterId)
-                val semesterStartMillis = System.currentTimeMillis() // Replace with actual semester start date
-                val semesterEndMillis = semesterStartMillis + 4 * 30 * 24 * 60 * 60 * 1000L // Example: 4 months
+                // Fetch the actual semester start and end dates from the database
+                val semesterStartDateString = viewModel.getSemesterStartDate(semesterId)
+                val semesterEndDateString = viewModel.getSemesterEndDate(semesterId)
+
+                // Convert these date strings to Date objects
+                val semesterStartDate = parseDate(semesterStartDateString)
+                val semesterEndDate = parseDate(semesterEndDateString)
+
+                // Convert Date to milliseconds
+                val semesterStartMillis = semesterStartDate.time
+                val semesterEndMillis = semesterEndDate.time
+//                val semesterStartMillis = System.currentTimeMillis() // Replace with actual semester start date
+//                val semesterEndMillis = semesterStartMillis + 4 * 30 * 24 * 60 * 60 * 1000L // Example: 4 months
 
                 if (courses.isEmpty()) {
                     Toast.makeText(requireContext(), "No courses to add to calendar.", Toast.LENGTH_SHORT).show()
@@ -199,11 +249,16 @@ class CourseListFragment : Fragment() {
         }
     }
 
+    private fun parseDate(dateString: String): Date {
+        val format = SimpleDateFormat("MM/dd/yyyy", Locale.getDefault())  // Adjust format to match your date format
+        return format.parse(dateString) ?: throw IllegalArgumentException("Invalid date format")
+    }
+
 
     private fun computeEventTime(time: String, day: Weekday, semesterStartMillis: Long): Long {
         try {
             // Parse the time in "h:mm a" format (e.g., "2:30 PM")
-            val dateFormat = java.text.SimpleDateFormat("h:mm a", Locale.getDefault())
+            val dateFormat = SimpleDateFormat("h:mm a", Locale.US)
             val timeDate = dateFormat.parse(time) ?: throw IllegalArgumentException("Invalid time format: $time")
 
             // Use the semester's start date to compute the event time
@@ -211,7 +266,16 @@ class CourseListFragment : Fragment() {
             calendar.timeInMillis = semesterStartMillis
 
             // Set the day of the week and time
-            calendar.set(Calendar.DAY_OF_WEEK, day.ordinal + 1)
+            val calendarDay = when (day) {
+                Weekday.MONDAY -> Calendar.MONDAY
+                Weekday.TUESDAY -> Calendar.TUESDAY
+                Weekday.WEDNESDAY -> Calendar.WEDNESDAY
+                Weekday.THURSDAY -> Calendar.THURSDAY
+                Weekday.FRIDAY -> Calendar.FRIDAY
+                Weekday.SATURDAY -> Calendar.SATURDAY
+                Weekday.SUNDAY -> Calendar.SUNDAY
+            }
+            calendar.set(Calendar.DAY_OF_WEEK, calendarDay)
             val timeCalendar = Calendar.getInstance()
             timeCalendar.time = timeDate
             calendar.set(Calendar.HOUR_OF_DAY, timeCalendar.get(Calendar.HOUR_OF_DAY))
@@ -296,5 +360,13 @@ class CourseViewModel(private val database: AppDatabase) : ViewModel() {
 
     suspend fun deleteCourse(course: Course) {
         database.courseDao().delete(course)
+    }
+
+    suspend fun getSemesterStartDate(semesterId: Long): String {
+        return database.semesterDao().getSemesterStartDate(semesterId)
+    }
+
+    suspend fun getSemesterEndDate(semesterId: Long): String {
+        return database.semesterDao().getSemesterEndDate(semesterId)
     }
 }

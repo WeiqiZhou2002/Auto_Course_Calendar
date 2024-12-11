@@ -50,12 +50,16 @@ class SemesterDetailFragment : Fragment() {
             val endDate = endDateInput.text.toString()
 
             if (year != null && season.isNotBlank() && startDate.isNotBlank() && endDate.isNotBlank()) {
+                val formattedStartDate = formatDate(startDate)
+                val formattedEndDate = formatDate(endDate)
+
                 val semester = Semester(
                     year = year,
                     season = season,
-                    startDate = startDate,
-                    endDate = endDate
+                    startDate = formattedStartDate,
+                    endDate = formattedEndDate
                 )
+
 
                 // Save to database and navigate
                 lifecycleScope.launch {
@@ -100,6 +104,19 @@ class SemesterDetailFragment : Fragment() {
                     buttonSeason.text = seasons[which]
                 }
                 .show()
+        }
+    }
+    private fun formatDate(dateString: String): String {
+        // Expecting dateString in MMDDYYYY format
+        return if (dateString.length == 8) {
+            val month = dateString.substring(0, 2)
+            val day = dateString.substring(2, 4)
+            val year = dateString.substring(4, 8)
+
+            "$month/$day/$year"
+        } else {
+            // Return the input if it does not match the expected format
+            dateString
         }
     }
 }
